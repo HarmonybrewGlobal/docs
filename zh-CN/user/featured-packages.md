@@ -68,10 +68,9 @@ Harmonybrew 本该只负责包管理，但为了让大家能顺利地在 OpenHar
   </tbody>
 </table>
 
-
 ## 场景演示
 
-### 场景一：编译 C/C++ 软件
+### 场景一：编译 C/C++ 程序
 
 在鸿蒙 PC 的 HiShell 环境中编译开源软件 gzip：
 
@@ -114,7 +113,65 @@ $PREFIX/bin/gzip --help
 sh -c "rm -rf $TMPDIR/* $WORKDIR/*"
 ```
 
-### 场景二：安装 Python 三方库 
+### 场景二：编译 Rust 程序
+
+用法1：安装 llvm-gcc-compat，让 llvm-gcc-compat 提供 cc 命令供 rustc 使用。用户无需再额外通过 config.toml 来配置 linker 路径。
+
+在不配置任何 config.toml 的情况下，rustc 默认会调用 cc 命令作为 linker。
+
+这个 cc 命令实际上是个软链接，指向了 ohos-sdk 里面的 clang 驱动器。
+
+clang 驱动器在进行链接操作时，调用的是经过我们封装的 ld.lld 脚本，因此最终 rustc 编译出来的二进制都会默认带有代码签名，可直接在鸿蒙 PC 上运行。
+
+```sh
+# 安装 rust 和 llvm-gcc-compat（ohos-sdk 会作为 llvm-gcc-compat 的级联依赖被自动引入）
+brew install rust llvm-gcc-compat
+
+# 创建一个简单的 cargo 工程并将其编译成二进制
+cargo new hello_project
+cd hello_project
+cat > src/main.rs << 'EOF'
+fn main() {
+    println!("Hello, world!");
+}
+EOF
+cargo build --release
+
+# 测试编译产物是否能正常运行
+./target/release/hello_project
+```
+
+用法 2：不安装 llvm-gcc-compat，仅安装 ohos-sdk。用户需要额外配置 config.toml 指定使用 ohos-sdk 里面的 clang 驱动器作为 linker。
+
+clang 驱动器在进行链接操作时，调用的是经过我们封装的 ld.lld 脚本，因此最终 rustc 编译出来的二进制都会默认带有代码签名，可直接在鸿蒙 PC 上运行。
+
+```sh
+# 仅安装 rust 和 ohos-sdk，不安装 llvm-gcc-compat
+brew install rust ohos-sdk
+
+# 编写一个用户级的 config.toml
+mkdir -p ~/.cargo/
+cat > ~/.cargo/config.toml << 'EOF'
+[target.aarch64-unknown-linux-ohos]
+ar = "/storage/Users/currentUser/.harmonybrew/opt/ohos-sdk/native/llvm/bin/llvm-ar"
+linker = "/storage/Users/currentUser/.harmonybrew/opt/ohos-sdk/native/llvm/bin/clang"
+EOF
+
+# 创建一个简单的 cargo 工程并将其编译成二进制
+cargo new hello_project
+cd hello_project
+cat > src/main.rs << 'EOF'
+fn main() {
+    println!("Hello, world!");
+}
+EOF
+cargo build --release
+
+# 测试编译产物是否能正常运行
+./target/release/hello_project
+```
+
+### 场景三：安装 Python 三方库
 
 在鸿蒙 PC 的 HiShell 环境中安装 numpy：
 

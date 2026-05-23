@@ -15,6 +15,7 @@
 **3\. 安装 Homebrew**
 
 在终端中执行这句命令进行安装
+
 ```sh
 zsh -c "$(curl -fsSL https://harmonybrew.atomgit.com/install.sh)"
 ```
@@ -32,7 +33,6 @@ eval "$(/storage/Users/currentUser/.harmonybrew/bin/brew shellenv)"
 现在可以开始使用 brew 命令了。
 
 ## 鸿蒙开发板
-
 
 **1\. 配置所需目录**
 
@@ -68,7 +68,8 @@ ln -s /data/zsh-5.9-ohos-arm64/bin/zsh /usr/bin/zsh
 
 **3\. 安装 Homebrew**
 
-在终端中执行这句命令进行安装 *（别忘了给开发板联网）*
+在终端中执行这句命令进行安装 _（别忘了给开发板联网）_
+
 ```sh
 zsh -c "$(curl -fsSL https://harmonybrew.atomgit.com/install.sh)"
 ```
@@ -99,6 +100,7 @@ ln -s /opt/zsh-5.9-ohos-arm64/bin/zsh /usr/bin/zsh
 **2\. 安装 Homebrew**
 
 在终端中执行这句命令进行安装
+
 ```sh
 zsh -c "$(curl -fsSL https://harmonybrew.atomgit.com/install.sh)"
 ```

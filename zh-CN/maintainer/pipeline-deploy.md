@@ -16,16 +16,17 @@
 
 这里假设我们准备了 6 台服务器，我们分别给他们取不同的名字、分配不同的职责
 
-| 主机名         |  职责                                                   |
-| ---------------|---------------------------------------------------------|
-| image-builder  | 专门用来跑 auto_images.sh，负责构建出 ci-runner 镜像    |
-| webhook-filter | 专门用来跑 webhook_filter.py，负责过滤 webhook 报文     |
-| ci-runner-1    | 其他流水线脚本都跑在这些机器上                          |
-| ci-runner-2    | 其他流水线脚本都跑在这些机器上                          |
-| ci-runner-3    | 其他流水线脚本都跑在这些机器上                          |
-| ci-runner-4    | 其他流水线脚本都跑在这些机器上                          |
+| 主机名         | 职责                                                 |
+| -------------- | ---------------------------------------------------- |
+| image-builder  | 专门用来跑 auto_images.sh，负责构建出 ci-runner 镜像 |
+| webhook-filter | 专门用来跑 webhook_filter.py，负责过滤 webhook 报文  |
+| ci-runner-1    | 其他流水线脚本都跑在这些机器上                       |
+| ci-runner-2    | 其他流水线脚本都跑在这些机器上                       |
+| ci-runner-3    | 其他流水线脚本都跑在这些机器上                       |
+| ci-runner-4    | 其他流水线脚本都跑在这些机器上                       |
 
 这些服务器需要满足以下条件：
+
 1. 是 arm 服务器，不是 x86 服务器
 2. Region 在香港或国外（CI 执行过程中需要去 GitHub 下载源码和开发工具，中国大陆的服务器无法稳定访问 GitHub）
 3. 安装好 JDK，版本在 JDK 8 以上
@@ -39,15 +40,16 @@
 
 域名准备好后，还需要给你的域名申请一份 SSL 证书。如果你是个人开发者，为节省费用，建议使用 [Let's Encrypt](https://letsencrypt.org/) 提供的免费证书。
 
-### 2.3 OBS 和 CDN 
+### 2.3 OBS 和 CDN
 
 前往 OBS 控制台，创建一个 OBS 桶用来存储软件包，名字和 Region 随意。
 
 前往 CDN 控制台，将你的域名配置为 CDN 加速域名，CDN 回源地址指向你的 OBS 桶。
 
 CDN 服务范围的选择：
-* 如果完成了 ICP 备案，可以选“中国大陆”或“全球”。
-* 如果没完成 ICP 备案，只能选“中国大陆境外”。
+
+- 如果完成了 ICP 备案，可以选“中国大陆”或“全球”。
+- 如果没完成 ICP 备案，只能选“中国大陆境外”。
 
 CDN 加速域名配置完成之后，把你的 SSL 证书也部署到 CDN 上，以便后续使用 https 链接。
 
@@ -61,18 +63,20 @@ CDN 加速域名配置完成之后，把你的 SSL 证书也部署到 CDN 上，
 2. 将 Harmonybrew 组织下的所有代码仓全部 fork 一份到这个新的组织下。
 3. 把 `brew`、`install`、`ci` 这 3 个仓库下载到本地，进行修改，把里面的组织名字和 CDN 加速域名都替换成自己的数据。
 
-    对 3 个仓库都执行这个操作
-    ```sh
-    # 假设你的组织名字为 Brewharmony、CDN 加速域名为 cdn.brewharmony.com
-    find . -type f -not -path '*/.git/*' -exec sed -i 's@atomgit.com/Harmonybrew@atomgit.com/Brewharmony@g' {} +
-    find . -type f -not -path '*/.git/*' -exec sed -i 's@harmonybrew.atomgit.com@cdn.brewharmony.com@g' {} +
-    ```
+   对 3 个仓库都执行这个操作
 
-    对 brew 仓库还需额外执行这个操作
-    ```sh
-    # 假设你的组织名字为 Brewharmony
-    find . -type f -not -path '*/.git/*' -exec sed -i 's@Harmonybrew@Brewharmony@g' {} +
-    ```
+   ```sh
+   # 假设你的组织名字为 Brewharmony、CDN 加速域名为 cdn.brewharmony.com
+   find . -type f -not -path '*/.git/*' -exec sed -i 's@atomgit.com/Harmonybrew@atomgit.com/Brewharmony@g' {} +
+   find . -type f -not -path '*/.git/*' -exec sed -i 's@harmonybrew.atomgit.com@cdn.brewharmony.com@g' {} +
+   ```
+
+   对 brew 仓库还需额外执行这个操作
+
+   ```sh
+   # 假设你的组织名字为 Brewharmony
+   find . -type f -not -path '*/.git/*' -exec sed -i 's@Harmonybrew@Brewharmony@g' {} +
+   ```
 
 4. 把改好的代码提交回你的组织里面。
 
@@ -156,11 +160,12 @@ CDN 加速域名配置完成之后，把你的 SSL 证书也部署到 CDN 上，
 5. 创建第二个资源池。资源池名称：`image-builder`；类型：`LINUX`
 
 ## 5 注册执行机
+
 1. 进入资源池管理界面，点击资源池的名称 `ci-runner`。
 2. 在 `ci-runner` 资源池的详情页面，点右上角“新建代理”。
 3. 配置代理信息：
-    * 上半部分除“重启免注册”以外，其他开关都不要开启；
-    * 下半部分录入你提前准备好的 AK/SK，代理名称填 `ci-runner-1`，代理工作空间填 `/opt/ci-runner-1`
+   - 上半部分除“重启免注册”以外，其他开关都不要开启；
+   - 下半部分录入你提前准备好的 AK/SK，代理名称填 `ci-runner-1`，代理工作空间填 `/opt/ci-runner-1`
 4. 配置完成后，点击“生成命令”、“复制命令”，生成的命令粘贴到服务器中执行。
 5. 如果有多台执行机，就重复执行 3、4 步骤。执行机命名规则：`ci-runner-1`、`ci-runner-2` ...
 6. 进入 `image-builder` 资源池的详情页面，同样执行 3、4 步骤，涉及到名字的地方都命名为 `image-builder`。这个资源池不常用，只注册一台执行机即可。
@@ -168,31 +173,29 @@ CDN 加速域名配置完成之后，把你的 SSL 证书也部署到 CDN 上，
 ## 6 创建编译构建任务
 
 1. 进入“编译构建”界面，新建一个任务
-    * 名称：`auto-bottle 任务`
-    * 代码源：来自流水线
-    * 使用空白构建模板
-    * 选择 `ci-runner` 资源池
-    * 点击左边“添加构建步骤”，选“容器类”-“使用SWR公共镜像”
-    * 构建步骤添加出来后，填写信息。
-    	* 名称：随意
-        * 镜像地址：根据你注册的 SWR 组织信息构造出 ci-runner 镜像的下载地址。假设你的组织名字为 brewharmony、Region 在北京四，那你的镜像下载地址就是这样：`swr.cn-north-4.myhuaweicloud.com/brewharmony/ci-runner:latest`
-        * 命令：`python3 src/auto_bottle.py`
+   - 名称：`auto-bottle 任务`
+   - 代码源：来自流水线
+   - 使用空白构建模板
+   - 选择 `ci-runner` 资源池
+   - 点击左边“添加构建步骤”，选“容器类”-“使用SWR公共镜像”
+   - 构建步骤添加出来后，填写信息。
+     - 名称：随意
+       - 镜像地址：根据你注册的 SWR 组织信息构造出 ci-runner 镜像的下载地址。假设你的组织名字为 brewharmony、Region 在北京四，那你的镜像下载地址就是这样：`swr.cn-north-4.myhuaweicloud.com/brewharmony/ci-runner:latest`
+       - 命令：`python3 src/auto_bottle.py`
 2. 以同样的操作，将 `auto-merge`、`auto-bump`、`auto-static`、`auto-stats` 这几个任务也都创建出来。这些任务除了脚本名字不一样以外其他配置完全相同。
 3. 进入“编译构建”界面，新建一个任务
-    * 名称：`auto-image 任务`
-    * 代码源：来自流水线
-    * 使用空白构建模板
-    * 选择 `image-builder` 资源池
-    * 点击左边“添加构建步骤”，选“所有步骤”-“执行shell命令”
-    * 构建步骤添加出来后，填写信息。名称：随意；命令：`sh src/auto_image.sh`
-
+   - 名称：`auto-image 任务`
+   - 代码源：来自流水线
+   - 使用空白构建模板
+   - 选择 `image-builder` 资源池
+   - 点击左边“添加构建步骤”，选“所有步骤”-“执行shell命令”
+   - 构建步骤添加出来后，填写信息。名称：随意；命令：`sh src/auto_image.sh`
 
 ## 7 配置编译构建任务参数
 
 对上面创建出来的所有编译构建任务，全部进行一遍参数设置。
 
 操作方法：进入“编译构建”界面，点击任务名字进入详情页面，点击右上角“参数设置”，录入自定义参数。
-
 
 各任务涉及到的参数如下，所需参数在最开始的“前置准备”已经准备好，直接录入即可：
 
@@ -280,21 +283,23 @@ CDN 加速域名配置完成之后，把你的 SSL 证书也部署到 CDN 上，
 </table>
 
 ## 8 新建服务扩展点
+
 1. 进入 CodeArts 服务的工作台，找到“通用设置”-“服务扩展点管理”，点击“新建服务扩展点”。类型选 GitCode（CodeArts 平台现在还不认识 GitCode 的新名字，只能用旧名字）；连接名称是自定义的，这里填 harmonybrew；token 填你注册的那个 AtomGit 机器人账号的 token。
 
 ## 9 创建流水线
+
 1. 在 CodeArts 服务的工作台，找到左侧菜单的 “持续交付”-“流水线”，点进去，创建一条流水线。
-    * 名称：auto-bottle
-    * 流水线源：AtomGit
-    * 服务扩展点：harmonybrew
-    * 代码仓：ci（指向你 fork 的 ci 仓库）
-    * 默认分支：main
-    * 选择模板：空模板
+   - 名称：auto-bottle
+   - 流水线源：AtomGit
+   - 服务扩展点：harmonybrew
+   - 代码仓：ci（指向你 fork 的 ci 仓库）
+   - 默认分支：main
+   - 选择模板：空模板
 2. 编辑 auto-bottle 流水线，点击上方菜单“任务编排”，点击“阶段\_1”里面的“新建任务”。
-    * 选择“Build构建”
-    * 名称：auto-bottle
-    * 任务：auto-bottle 任务
-    * 仓库：ci
+   - 选择“Build构建”
+   - 名称：auto-bottle
+   - 任务：auto-bottle 任务
+   - 仓库：ci
 
 按照相同的方法，将 `auto-merge`、`auto-bump`、`auto-static`、`auto-stats`、`auto-image` 这几条流水线创建出来。他们之间的区别只有触发设置不同，前面的创建步骤是一样的。
 
@@ -366,87 +371,93 @@ CDN 加速域名配置完成之后，把你的 SSL 证书也部署到 CDN 上，
 ## 10 搭建 webhook 过滤服务器
 
 1. 登陆 `webhook-filter` 服务器，直接在宿主机上安装 nginx、python 和所需的 pip 三方库。
-    ```sh
-    apt update
-    apt install -y nginx python3 python3-requests python3-fastapi python3-uvicorn
-    ```
+   ```sh
+   apt update
+   apt install -y nginx python3 python3-requests python3-fastapi python3-uvicorn
+   ```
 2. 创建 nginx 配置文件 `/etc/nginx/sites-available/webhook_filter.conf`
 
-    ```
-    server {
-        listen 1234;            # 改成你实际想用的端口，配完后记得在 ECS 的安全组里面把对应端口放开
-        server_name 1.2.3.4;    # 改成你实际的公网 IP
+   ```
+   server {
+       listen 1234;            # 改成你实际想用的端口，配完后记得在 ECS 的安全组里面把对应端口放开
+       server_name 1.2.3.4;    # 改成你实际的公网 IP
 
-        location /v5/ {
-            proxy_pass http://127.0.0.1:8090;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
+       location /v5/ {
+           proxy_pass http://127.0.0.1:8090;
+           proxy_set_header Host $host;
+           proxy_set_header X-Real-IP $remote_addr;
+           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+           proxy_set_header X-Forwarded-Proto $scheme;
 
-            # 建议做其他安全加固配置，例如 IP 白名单过滤等，这里不细讲
-        }
+           # 建议做其他安全加固配置，例如 IP 白名单过滤等，这里不细讲
+       }
 
-        # 其他路径返回 403
-        location / {
-            return 403;
-        }
-    }
-    ```
+       # 其他路径返回 403
+       location / {
+           return 403;
+       }
+   }
+   ```
+
 3. 启用 nginx 服务
-    ```sh
-    # 创建软链接到 sites-enabled目录中
-    ln -s /etc/nginx/sites-available/webhook_filter.conf /etc/nginx/sites-enabled/
 
-    # 测试配置是否正确
-    nginx -t
+   ```sh
+   # 创建软链接到 sites-enabled目录中
+   ln -s /etc/nginx/sites-available/webhook_filter.conf /etc/nginx/sites-enabled/
 
-    # 重新加载 nginx 配置
-    systemctl reload nginx
-    ```
+   # 测试配置是否正确
+   nginx -t
+
+   # 重新加载 nginx 配置
+   systemctl reload nginx
+   ```
+
 4. 在服务器上面的 /opt 目录放置 `webhook-filter.py`
-    ```sh
-    # 创建专用用户，命名为 filter
-    adduser --system --group --no-create-home filter
-    mkdir -p /opt/webhook_filter
-    curl -fsSL -o /opt/webhook_filter/webhook_filter.py https://raw.atomgit.com/Harmonybrew/ci/raw/main/src/webhook_filter.py
-    chown -R filter:filter /opt/webhook_filter
-    ```
+   ```sh
+   # 创建专用用户，命名为 filter
+   adduser --system --group --no-create-home filter
+   mkdir -p /opt/webhook_filter
+   curl -fsSL -o /opt/webhook_filter/webhook_filter.py https://raw.atomgit.com/Harmonybrew/ci/raw/main/src/webhook_filter.py
+   chown -R filter:filter /opt/webhook_filter
+   ```
 5. 创建 systemd 配置文件 `/etc/systemd/system/webhook-filter.service`
-    ```sh
-    [Unit]
-    Description=AtomGit Webhook Filter for CodeArts
-    After=network.target
 
-    [Service]
-    Type=simple
-    # 以 filter 用户权限运行
-    User=filter
-    WorkingDirectory=/opt/webhook_filter
-    # 启动命令
-    ExecStart=/usr/bin/python3 /opt/webhook_filter/webhook_filter.py
-    # 崩溃自动重启
-    Restart=on-failure
-    RestartSec=10
-    # 日志走 journald
-    StandardOutput=journal
-    StandardError=journal
-    SyslogIdentifier=webhook-filter
+   ```sh
+   [Unit]
+   Description=AtomGit Webhook Filter for CodeArts
+   After=network.target
 
-    [Install]
-    WantedBy=multi-user.target
-    ```
+   [Service]
+   Type=simple
+   # 以 filter 用户权限运行
+   User=filter
+   WorkingDirectory=/opt/webhook_filter
+   # 启动命令
+   ExecStart=/usr/bin/python3 /opt/webhook_filter/webhook_filter.py
+   # 崩溃自动重启
+   Restart=on-failure
+   RestartSec=10
+   # 日志走 journald
+   StandardOutput=journal
+   StandardError=journal
+   SyslogIdentifier=webhook-filter
+
+   [Install]
+   WantedBy=multi-user.target
+   ```
+
 6. 启动 systemd 服务
-    ```sh
-    # 重载 systemd 配置
-    systemctl daemon-reload
-    # 启用开机自启
-    systemctl enable webhook-filter.service
-    # 立即启动
-    systemctl start webhook-filter.service
-    ```
+   ```sh
+   # 重载 systemd 配置
+   systemctl daemon-reload
+   # 启用开机自启
+   systemctl enable webhook-filter.service
+   # 立即启动
+   systemctl start webhook-filter.service
+   ```
 
 ## 11 对接 webhook
+
 1. 在 CodeArts 服务的工作台，找到左侧菜单的 “持续交付”-“流水线”，点进去。
 2. 点开 `auto-bottle` 这条流水线，点上方菜单“触发设置”，复制 webhoook 触发 URL。记录下来，并把 URL 里面的域名替换成 `<过滤服务器的公网 IP>:<过滤服务器的端口>`，协议从 https 换成 http。这个改好的 URL 后面会用到。
 3. 进入 homebrew-core 仓库的 webhook 配置页面，点右上角“新建 WebHook”。
@@ -455,6 +466,7 @@ CDN 加速域名配置完成之后，把你的 SSL 证书也部署到 CDN 上，
 ## 12 构建第一个 ci-runner 镜像
 
 构建第一个镜像之前需要在执行机上面进行一次手工运维操作：
+
 1. 打开 SWR 控制台，点右上角“客户端上传”。
 2. 生成登陆指令。
 3. 把 AK/SK 填进去，生成长期有效指令。
@@ -469,8 +481,9 @@ CDN 加速域名配置完成之后，把你的 SSL 证书也部署到 CDN 上，
 在我们的 OBS 桶中，有一类文件是包索引文件，这些文件需要频繁更新，所以要手动调整缓存配置。
 
 在 CDN 控制台里面找到“缓存配置”进行配置，缓存规则如下：
-* /api：包索引缓存 10 分钟
-* 默认规则：默认值 30 天不做改动
+
+- /api：包索引缓存 10 分钟
+- 默认规则：默认值 30 天不做改动
 
 ## 14 部署完成
 

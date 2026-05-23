@@ -17,6 +17,7 @@ Harmonybrew 核心 tap（Harmonybrew/homebrew-core）的准入条件较为严格
 以分发闭源软件 `hello-brew` 为例，假设预构建包名为 `hello-brew-1.0.0-ohos-arm64.tar.gz`。
 
 其解压后的目录结构如下：
+
 ```text
 hello-brew-1.0.0-ohos-arm64
 ├── bin
@@ -44,6 +45,7 @@ hello-brew-1.0.0-ohos-arm64
 将 Git 仓库克隆至本地，在仓库中创建 `Formula` 目录，并按首字母划分子目录，最后在该子目录中创建 formula 文件。
 
 **操作步骤：**
+
 ```sh
 git clone git@atomgit.com:Harmonybrew/custom-tap-example.git
 cd custom-tap-example
@@ -52,6 +54,7 @@ vim Formula/h/hello-brew.rb
 ```
 
 **Formula 模板示例：**
+
 ```rb
 class HelloBrew < Formula
   desc "Hello world program with bin and so"
@@ -75,6 +78,7 @@ end
 > 注意：请根据实际情况替换其中的下载地址及元数据。若压缩包结构为非标准结构，需自行调整 install 函数。
 
 Formula 编写完成后，提交至远程仓库：
+
 ```sh
 git add .
 git commit -m "hello-brew 1.0.0 (new formula)"
@@ -84,6 +88,7 @@ git push
 ## 制作并上传 Bottle
 
 进入 `ci-runner` 容器，添加自定义 tap：
+
 ```sh
 # 启动并进入 ci-runner 容器
 docker pull swr.cn-north-4.myhuaweicloud.com/harmonybrew/ci-runner:latest
@@ -98,6 +103,7 @@ brew tap harmonybrew/custom-tap-example https://atomgit.com/Harmonybrew/custom-t
 ```
 
 配置 SSH 密钥、Git 用户信息及仓库信息，确保具备提交权限：
+
 ```sh
 ssh-keygen -t ed25519       # 建议一路回车
 cat ~/.ssh/id_ed25519.pub   # 将此公钥添加至 AtomGit 设置
@@ -113,6 +119,7 @@ cd -
 ```
 
 制作 bottle 并更新 formula：
+
 ```sh
 # 以 build-bottle 模式从源码安装（实际流程为下载预构建包）
 brew install -v --build-bottle hello-brew
@@ -135,6 +142,7 @@ cd -
 ## 验证 Bottle 有效性
 
 启动全新容器验证安装流程：
+
 ```sh
 # 清理旧容器
 docker rm -f ohos
@@ -158,7 +166,7 @@ hello-brew
 
 ## 注意事项
 
-*   **命名冲突**：自定义 tap 中的软件包名称建议避免与核心 tap 重名。若存在重名包，Homebrew 默认优先安装核心 tap 版本，除非用户显式指定 tap 路径。
+- **命名冲突**：自定义 tap 中的软件包名称建议避免与核心 tap 重名。若存在重名包，Homebrew 默认优先安装核心 tap 版本，除非用户显式指定 tap 路径。
 
 ## 完整样例
 
