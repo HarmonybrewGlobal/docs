@@ -6,7 +6,9 @@ Harmonybrew 核心 tap（Harmonybrew/homebrew-core）的准入条件较为严格
 
 这种分发方式仍然能够复用 Harmonybrew 的包管理器生态，用户下载软件包时仅需额外执行一条添加自定义 tap 的命令，对用户体验影响极小。
 
-本文档将以 AtomGit 平台为例，演示如何基于该平台搭建自定义 tap，并分发一个名为 `hello-brew` 的闭源软件。
+本文档将以 AtomGit 平台为例，演示如何基于该平台搭建自定义 tap，并分发一个名为 `busybox` 的“闭源软件”。
+
+> “闭源软件”打双引号的原因：这个软件实际上是个开源软件，源码 [在这](https://busybox.net/downloads/)。这里为了演示，直接从 [Harmonybrew/ohos-busybox](https://github.com/Harmonybrew/ohos-busybox) 仓库的 Releases 页面下载构建好的制品进行分发，假设它是个闭源软件。
 
 ## 前置能力准备
 
@@ -14,16 +16,16 @@ Harmonybrew 核心 tap（Harmonybrew/homebrew-core）的准入条件较为严格
 
 ## 准备预构建包
 
-以分发闭源软件 `hello-brew` 为例，假设预构建包名为 `hello-brew-1.0.0-ohos-arm64.tar.gz`。
+以分发“闭源软件” `busybox` 为例，假设预构建包名为 `busybox-1.37.0-ohos-arm64.tar.gz`。
 
 其解压后的目录结构如下：
 
 ```text
-hello-brew-1.0.0-ohos-arm64
+busybox-1.37.0-ohos-arm64
+├── AUTHORS
 ├── bin
-│   └── hello-brew
-└── lib
-    └── libhello.so
+│   └── busybox
+└── LICENSE
 ```
 
 ## 创建 Git 仓库
@@ -36,9 +38,9 @@ hello-brew-1.0.0-ohos-arm64
 
 由于构建 formula 的过程中需要下载该预构建包，因此需将其上传至可公开访问的存储地址。
 
-操作示例：可直接利用 AtomGit 代码仓库的“发行版（Releases）”功能来存储预构建包。在本场景中，可在 `https://atomgit.com/Harmonybrew/custom-tap-example` 仓库下创建名为 `hello-brew-1.0.0` 的发行版，并将预构建包上传至其中。
+操作示例：可直接利用 AtomGit 代码仓库的“发行版（Releases）”功能来存储预构建包。在本场景中，可在 `https://atomgit.com/Harmonybrew/custom-tap-example` 仓库下创建名为 `busybox-1.37.0` 的发行版，并将预构建包上传至其中。
 
-上传完成后，记录该公开下载链接：`https://atomgit.com/Harmonybrew/custom-tap-example/releases/download/hello-brew-1.0.0/hello-brew-1.0.0-ohos-arm64.tar.gz`
+上传完成后，记录该公开下载链接：`https://atomgit.com/Harmonybrew/custom-tap-example/releases/download/busybox-1.37.0/busybox-1.37.0-ohos-arm64.tar.gz`
 
 ## 制作并上传 Formula
 
@@ -49,22 +51,23 @@ hello-brew-1.0.0-ohos-arm64
 ```sh
 git clone git@atomgit.com:Harmonybrew/custom-tap-example.git
 cd custom-tap-example
-mkdir -p Formula/h
-vim Formula/h/hello-brew.rb
+mkdir -p Formula/b
+vim Formula/b/busybox.rb
 ```
 
 **Formula 模板示例：**
 
 ```rb
-class HelloBrew < Formula
-  desc "Hello world program with bin and so"
-  homepage "https://atomgit.com/Harmonybrew/custom-tap-example"
-  url "https://atomgit.com/Harmonybrew/custom-tap-example.git", branch: "main"
-  version "1.0.0"
+class Busybox < Formula
+  desc "Size optimized toolbox of many common UNIX utilities"
+  homepage "https://busybox.net/"
+  url "https://deb.debian.org/debian/pool/main/b/busybox/busybox_1.37.0.orig.tar.bz2"
+  sha256 "3311dff32e746499f4df0d5df04d7eb396382d7e108bb9250e7b519b837043a4"
+  license "GPL-2.0-only"
 
   resource "ohos_arm64_dist" do
-    url "https://atomgit.com/Harmonybrew/custom-tap-example/releases/download/hello-brew-1.0.0/hello-brew-1.0.0-ohos-arm64.tar.gz"
-    sha256 "06a1388a56d0b1bfad1f02936fe8a379bc3dcff2975bf69c3c4a39074edc31ba"
+    url "https://atomgit.com/Harmonybrew/custom-tap-example/releases/download/busybox-1.37.0/busybox-1.37.0-ohos-arm64.tar.gz"
+    sha256 "74339aa8ac50d8a4675b7002f29036611ec130d103a5ea73193aac9cf8f7b6a6"
   end
 
   def install
@@ -81,7 +84,7 @@ Formula 编写完成后，提交至远程仓库：
 
 ```sh
 git add .
-git commit -m "hello-brew 1.0.0 (new formula)"
+git commit -m "busybox 1.37.0 (new formula)"
 git push
 ```
 
@@ -99,7 +102,7 @@ cd ~
 brew update
 
 # 添加自定义 tap
-brew tap harmonybrew/custom-tap-example https://atomgit.com/Harmonybrew/custom-tap-example
+brew tap harmonybrew/custom-tap-example https://atomgit.com/Harmonybrew/custom-tap-example.git
 ```
 
 配置 SSH 密钥、Git 用户信息及仓库信息，确保具备提交权限：
@@ -122,22 +125,22 @@ cd -
 
 ```sh
 # 以 build-bottle 模式从源码安装（实际流程为下载预构建包）
-brew install -v --build-bottle hello-brew
+brew install -v --build-bottle busybox
 
 # 生成 bottle 和软件包元数据
 # --root_url 需指向发行版的下载路径，以便 Homebrew 正确拼接 bottle 地址
-ROOT_URL="https://atomgit.com/Harmonybrew/custom-tap-example/releases/download/hello-brew-1.0.0"
-brew bottle -v --skip-relocation --json --root-url=$ROOT_URL hello-brew
+ROOT_URL="https://atomgit.com/Harmonybrew/custom-tap-example/releases/download/busybox-1.37.0"
+brew bottle -v --skip-relocation --json --root-url=$ROOT_URL busybox
 
 # 更新 formula 文件（自动合入 bottle 信息）并推送到远程仓库
-JSON_FILE=$(ls hello-brew-*.json)
+JSON_FILE=$(ls busybox-*.json)
 brew bottle --write --merge $JSON_FILE
 cd $(brew --repository harmonybrew/custom-tap-example)
 git push ssh-repo
 cd -
 ```
 
-执行完成后，当前目录将生成 bottle 文件（如 `hello-brew-1.0.0.arm64_ohos.bottle.1.tar.gz`）。将其上传至 AtomGit 对应发行版中即可。
+执行完成后，当前目录将生成 bottle 文件（如 `busybox-1.37.0.arm64_ohos.bottle.1.tar.gz`）。将其上传至 AtomGit 对应发行版中即可。
 
 ## 验证 Bottle 有效性
 
@@ -155,13 +158,13 @@ cd ~
 brew update
 
 # 添加自定义 tap
-brew tap harmonybrew/custom-tap-example https://atomgit.com/Harmonybrew/custom-tap-example
+brew tap harmonybrew/custom-tap-example https://atomgit.com/Harmonybrew/custom-tap-example.git
 
 # 安装自定义 tap 中的软件包
-brew install hello-brew
+brew install busybox
 
 # 执行软件包里面的命令，验证它是否正常工作
-hello-brew
+busybox
 ```
 
 ## 注意事项
