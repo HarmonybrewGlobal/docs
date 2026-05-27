@@ -1,64 +1,47 @@
-# 问题反馈
+# Issue Reporting
 
-## 前提准备
+## Prerequisites
 
-在提交 issue 前，请务必知悉以下事实：
+Before submitting an issue, please be aware of the following:
 
-1. **非商业性质**：Harmonybrew 是一个完全免费的开源项目。你未曾为此支付费用，也无权要求开发者提供任何即时响应或特定服务。
-2. **独立性声明**：本项目并非华为产品的附属软件或售后配套。我们与 OpenHarmony 社区以及华为公司均无隶属关系，有关硬件设备或操作系统的售后诉求请通过官方渠道解决。
+1. **Non-commercial nature**: Harmonybrew is a completely free open-source project. You have not paid for this project and are not entitled to demand any immediate response or specific services from the developers.
+2. **Disclaimer of Affiliation**: This project is not affiliated with Huawei products or part of their after-sales support. We have no affiliation with the OpenHarmony community or Huawei. Please resolve any after-sales issues regarding hardware devices or operating systems through official channels.
 
-## 问题分类
+## Issue Categories
 
-我们将问题划分为以下几类：
+We categorize issues as follows:
 
-1. **包管理器无法正常工作**：因云侧基础设施（CDN、流水线等）和端侧基础设施（git 和 ruby 等）不可用，或因鸿蒙适配工作有遗漏，导致包管理器无法正常运行。
-2. **软件仓库中的软件包无法正常工作**：使用包管理器安装的软件包无法正常工作，如报错 `Permission denied` 或 `Operation not permitted` 等。
-3. **软件仓库中没有自己需要的软件包**：想用的软件包尚未录入到仓库中。
-4. **文档问题**：流程存在断点，按文档操作未达成预期效果。
-5. **安全问题**：发生密钥泄露、供应链攻击等紧急事件。
-6. **其他问题**：除上述类别以外的问题。
+1. **Package Manager Not Working Properly**: The package manager fails to function due to unavailability of cloud-side infrastructure (CDN, pipelines, etc.) or client-side infrastructure (Git, Ruby, etc.), or due to omissions in HarmonyOS adaptation.
+2. **Packages in the software repository do not function properly**: Packages installed via the package manager do not function correctly, such as returning errors like `Permission denied` or `Operation not permitted`.
+3. **Desired packages are missing from the software repository**: The package you wish to use has not yet been added to the repository.
+4. **Documentation issues**: There are gaps in the process; following the documentation does not yield the expected results.
+5. **Security issues**: Critical incidents such as key leaks or supply chain attacks.
+6. **Other issues**: Issues not covered by the categories above.
 
-## 反馈方式
+## How to Provide Feedback
 
-**1. 包管理器无法正常工作**
+**1. Package manager not working properly**
 
-- **紧急故障**：可直接向 Harmonybrew 维护团队发送邮件。邮箱地址见 [社区说明](../community.md)。
-- **非紧急故障**：可提交 issue 至 [Harmonybrew/brew](https://atomgit.com/Harmonybrew/brew) 仓库，或在修复后提交 PR。
-
-<br>
-
-**2. 软件仓库中的软件包无法正常工作**
-
-本社区允许提交此类 issue 以供社区讨论，但**维护团队不负责解决。** 我们只提供平台能力，不负责成千上万个软件包的鸿蒙适配，也无权指挥其他社区或厂商更改操作系统的实现。
-
-我们对软件包的录入策略与上游 Homebrew 保持一致：只要软件包在流水线通过 `brew test`，即允许录入。
-
-软件包通过 `brew test` 意味着它至少能在“**OpenHarmony + 非应用沙箱环境 + ext4 文件系统**”下通过冒烟测试（如开发板或容器环境）。但对于安全规格更严格的“**HarmonyOS + 应用沙箱环境 + HMDFS 文件系统**”（即鸿蒙 PC HiShell 环境），我们不专门进行测试，无法保证其兼容性。
-
-> **说明**：由于厂商未提供云化的 HarmonyOS 系统环境，开发者无法获取云化测试资源，因此未进行测试。相比之下，Windows、Linux、macOS 在主流 CI/CD 平台（如 GitHub Actions）中均属于标准化的基础环境，并对开源项目提供了成熟的运行支持。
-
-建议有动手能力的用户自行定位并处理：
-
-- **需深度适配**：请将补丁或 formula 贡献至 [Harmonybrew/homebrew-core](https://atomgit.com/Harmonybrew/homebrew-core) 仓库。
-- **系统环境缺陷**：请整理最小复现集，向相关社区（OpenHarmony）或厂商（HarmonyOS）反馈。
+- **Critical issues**: You can email the Harmonybrew maintenance team directly. See the [Community Guide](../community.md) for the email address.
+- **Non-urgent issues**: Submit an issue to the [Harmonybrew/brew](https://atomgit.com/Harmonybrew/brew) repository, or submit a PR after fixing the issue.
 
 <br>
 
-如自身不具备处理能力，可将 issue 提交至 [Harmonybrew/homebrew-core](https://atomgit.com/Harmonybrew/homebrew-core) 仓库并等待志愿者协助。我们欢迎并鼓励开发者在 issue 下互相帮助，共同解决特定环境下的软件包兼容性问题。
+**2. Packages in the software repository are not working properly**
 
-**3. 软件仓库中没有自己需要的软件包**
+This community allows the submission of such issues for community discussion, but **the maintenance team is not responsible for resolving them.** We only provide the platform capabilities; we are not responsible for adapting thousands of packages to HarmonyOS, nor do we have the authority to direct other communities or vendors to modify their operating system implementations.
 
-本项目不提供“心愿单”服务。请践行“自己动手，丰衣足食”的开源精神，自行录入所需的软件包。指导文档：[如何贡献 formula](../contributor/contribute-formula.md)。
+Our package inclusion policy aligns with that of upstream Homebrew: as long as a package passes `brew test` in the pipeline, it is allowed to be included.
 
-**4. 文档问题**
+A package passing `brew test` means it can at least pass smoke tests in an “**OpenHarmony + non-app sandbox environment + ext4 filesystem**” (such as a development board or container environment). However, for the “**HarmonyOS + app sandbox environment + HMDFS filesystem**” (i.e., the HarmonyOS PC HiShell environment), we do not conduct dedicated testing and cannot guarantee compatibility.
 
-请前往 [Harmonybrew/docs](https://atomgit.com/Harmonybrew/docs) 仓库提交 issue。
+> **Note**: Since vendors have not provided a cloud-based HarmonyOS system environment, developers cannot access cloud testing resources; therefore, no testing has been conducted. In contrast, Windows, Linux, and macOS are standardized base environments on mainstream CI/CD platforms (such as GitHub Actions) and offer mature runtime support for open-source projects.
 
-**5. 安全问题**
+We recommend that users with technical expertise identify and resolve these issues on their own:
 
-此类问题极为重要，请直接联系维护团队。邮箱地址见 [社区说明](../community.md)。
+- **Requires in-depth adaptation**: Please contribute patches or formulas to the [Harmonybrew/homebrew-core](https://atomgit.com/Harmonybrew/homebrew-core) repository.
+- **System environment issues**: Please compile a minimal reproducible test case and report it to the relevant community (OpenHarmony) or vendor (HarmonyOS).
 
-**6. 其他问题**
+<br>
 
-- **定界反馈**：原则上“哪个仓库出的问题就向哪个仓库提 issue”，无法定界时可发邮件。
-- **禁止务虚**：请勿在 issue 中讨论与软件故障无关的话题（如：系统优劣论、技术选型质疑、项目运作评价、开源软件用法咨询、要求赋能培训等）。维护团队精力有限，此类讨论将被**直接关闭且不予回复**。
+If you lack the technical capability to resolve the issue yourself, you may submit an issue to [Harmonybrew/homebrew-core](https://atomgit.com/Harm
